@@ -21,6 +21,8 @@ function createNode(vNode) {
     // 处理原生节点
     if (typeof type === "string") {
         node = updateHostComponent(vNode);
+    } else if (typeof type === "function") {
+        node = updateFunctionComponent(vNode);
     }
 
     return node;
@@ -44,11 +46,18 @@ function updateHostComponent(vNode) {
   updateNode(node, props);
   return node;
 }
+// 处理函数组件
+// 直接执行函数
+function updateFunctionComponent(vNode) {
+    const { type, props } = vNode;
+    const vvnode = type(props);
+    let node = createNode(vvnode);
+    return node;
+}
 
 // 更新属性
 // 考虑一下其他属性如何加
 function updateNode (node, nextVal) {
-    console.log(nextVal);
     Object.keys(nextVal)
     .filter(l => l !== 'children')
     .forEach(function (key) {
