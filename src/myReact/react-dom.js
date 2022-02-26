@@ -16,13 +16,16 @@ function render (vNode, container) {
 // 创建真实的dom节点
 function createNode(vNode) {
     let node = null;
-    console.log(vNode);
+    // console.log(vNode);
     const { type } = vNode;
     // 处理原生节点
     if (typeof type === "string") {
         node = updateHostComponent(vNode);
     } else if (typeof type === "function") {
-        node = updateFunctionComponent(vNode);
+      // console.log(type.prototype.isReactComponent);
+      // type.prototype.isReactComponent:函数组件的话为undefined
+      // 类组件的话是{}
+      node = type.prototype.isReactComponent ? updateClassComponent(vNode) : updateFunctionComponent(vNode);
     }
 
     return node;
@@ -51,6 +54,14 @@ function updateHostComponent(vNode) {
 function updateFunctionComponent(vNode) {
     const { type, props } = vNode;
     const vvnode = type(props);
+    let node = createNode(vvnode);
+    return node;
+}
+// 处理类组件，需要new实例
+function updateClassComponent (vNode) {
+    const { type, props } = vNode;
+    const instance = new type(props);
+    const vvnode = instance.render();
     let node = createNode(vvnode);
     return node;
 }
